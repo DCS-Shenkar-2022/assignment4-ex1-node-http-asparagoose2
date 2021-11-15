@@ -3,7 +3,7 @@ const pino = require("pino");
 const pretty = require("pino-pretty");
 const timeManager = require("./timeManager");
 const http = require("http");
-const logger = pino(pino.destination("logs/index.log"));
+const logger = pino(pretty(),pino.destination("logs/index.log"));
 
 http
   .createServer((req, res) => {
