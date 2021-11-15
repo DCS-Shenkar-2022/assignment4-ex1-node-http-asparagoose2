@@ -1,10 +1,15 @@
-const { timeStamp } = require("console");
 const pino = require("pino");
-const pretty = require("pino-pretty");
 const timeManager = require("./timeManager");
 const http = require("http");
+var fs = require('fs');
+const logDirName = "logs";
 const { EOL } = require('os');
 const levelMapping = { 50: 'ERROR', 40: 'WARNING', 30: 'INFO', 20: 'DEBUG' };
+
+if (!fs.existsSync(logDirName)){
+    fs.mkdirSync(logDirName);
+}
+
 const logger = pino({
     level: 'info',
     prettyPrint: {},
