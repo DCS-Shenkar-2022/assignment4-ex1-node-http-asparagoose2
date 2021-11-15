@@ -3,7 +3,19 @@ const pino = require("pino");
 const pretty = require("pino-pretty");
 const timeManager = require("./timeManager");
 const http = require("http");
-const logger = pino(pretty(),pino.destination("logs/index.log"));
+const { EOL } = require('os');
+const levelMapping = { 50: 'ERROR', 40: 'WARNING', 30: 'INFO', 20: 'DEBUG' };
+const logger = pino({
+    level: 'info',
+    prettyPrint: {},
+    prettifier: (opts) => {
+        return (inputData) => {
+            const ts = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
+            console.log(inputData);
+            const line = `${ts} ${levelMapping[inputData.level]}: ${inputData.msg} ${EOL}`
+            return line;
+        }}
+},pino.destination("logs/index.log"));
 
 http
   .createServer((req, res) => {
