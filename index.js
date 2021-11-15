@@ -28,6 +28,10 @@ http
             }
             break;
           case "POST":
+              if(timeManager.hasSelectedTime(body.id)) {
+                res.writeHead(400, { "Content-Type": "application/json" });
+                res.end(JSON.stringify({error: "id already exists"}));
+              } else {
               try {
                 timeManager.setSelectedTime(body.id, body.time);
                 res.writeHead(200, { "Content-Type": "application/json" });
@@ -37,6 +41,7 @@ http
                 console.log(e.message);
                 res.end(JSON.stringify({"error": "missing / wrong id or time"}));
               }
+            }
             break;
           case "PUT":
             // do something

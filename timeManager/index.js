@@ -10,6 +10,11 @@ function setSelectedTime(id, time) {
     }
 }
 
+// functio that returns weather or not the member has selected a time
+function hasSelectedTime(id) {
+    return data[id] !== undefined;
+}
+
 function getSelectedTime(id) {
     return data[id];
 }
@@ -21,4 +26,4 @@ function getSelectedTimes() {
 function removeSelectedTime(id) {
     delete data[id];
 }
-module.exports = {setSelectedTime, getSelectedTime, getSelectedTimes, removeSelectedTime};
+module.exports = {setSelectedTime, getSelectedTime, getSelectedTimes, removeSelectedTime, hasSelectedTime};
