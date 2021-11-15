@@ -1,4 +1,5 @@
 const pino = require("pino");
+const pretty = require("pino-pretty");
 const timeManager = require("./timeManager");
 const Emitter = require("events");
 const emmiter = new Emitter.EventEmitter();
@@ -15,16 +16,29 @@ if (!fs.existsSync(logDirName)){
 }
 
 // setup pino logger
+// const logger = pino({
+//     level: 'info',
+//     prettyPrint: {},
+//     prettifier: (opts) => {
+//         return (inputData) => {
+//             const ts = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
+//             const line = `${ts} ${levelMapping[inputData.level]}: ${inputData.msg} ${EOL}`
+//             return line;
+//         }}
+// },pino.destination("logs/index.log"));
+ 
 const logger = pino({
-    level: 'info',
-    prettyPrint: {},
-    prettifier: (opts) => {
-        return (inputData) => {
-            const ts = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
-            const line = `${ts} ${levelMapping[inputData.level]}: ${inputData.msg} ${EOL}`
-            return line;
-        }}
-},pino.destination("logs/index.log"));
+    transport: {
+      target: 'pino-pretty',
+      options: {
+        levelKey: 'level',
+        destination: "logs/index.log",
+        colorize: false,
+        translateTime: 'yyyy-mm-dd HH:MM:ss',
+        ignore: 'pid,hostname',
+      }
+    },
+  })
 
 emmiter.on('error', (msg) => logger.error(msg));
 emmiter.on('info', (msg) => logger.info(msg));
@@ -46,14 +60,21 @@ http
         console.log(`new ${req.method} request`);
         switch (req.method) {
             case "GET":
-                emmiter.emit('info', `${req.method} request for ${req.url}`)
+                emmiter.emit('info', `${req.method} request for ${req.url}`);
                 if (req.url.split("/")[2]) {
-              res.writeHead(200, { "Content-Type": "application/json" });
-              res.end(JSON.stringify(timeManager.getSelectedTime(req.url.split("/")[2])));
-            } else {
-              res.writeHead(200, { "Content-Type": "application/json" });
-              res.end(JSON.stringify(timeManager.getSelectedTimes()));
-            }
+                    if(timeManager.hasSelectedTime(req.url.split("/")[2])) {
+                        res.writeHead(200, { "Content-Type": "application/json" });
+                        res.end(JSON.stringify(timeManager.getSelectedTime(req.url.split("/")[2])));
+                        emmiter.emit('info', `${req.method} request for ${req.url}`);
+                    } else {
+                        res.writeHead(400, { "Content-Type": "application/json" });
+                        res.end(JSON.stringify({error: "id does not exists!", solution: "Check your id and try again, id should be in url"}));
+                        emmiter.emit('error',`${req.method} request for ${req.url} failed with error: "id does not exists!"`);
+                    }
+                } else {
+                    res.writeHead(200, { "Content-Type": "application/json" });
+                    res.end(JSON.stringify(timeManager.getSelectedTimes()));
+                }
             break;
             
           case "POST":
