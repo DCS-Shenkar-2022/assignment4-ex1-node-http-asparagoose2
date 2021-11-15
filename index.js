@@ -41,10 +41,12 @@ http
                 timeManager.setSelectedTime(body.id, body.time);
                 res.writeHead(200, { "Content-Type": "application/json" });
                 res.end(JSON.stringify("updated value"));
+                logger.info(`${req.method} request for ${req.url} new selection created`);
               } catch (e) {
                 res.writeHead(400, { "Content-Type": "application/json" });
                 console.log(e.message);
                 res.end(JSON.stringify({"error": "missing / wrong id or time", solution: 'check the id and time keys should be: id, time'}));
+                logger.error(`${req.method} request for ${req.url} failed with error: "missing / wrong id or time"`);
               }
             }
             break;
@@ -52,15 +54,18 @@ http
                 if(!timeManager.hasSelectedTime(body.id)) {
                   res.writeHead(400, { "Content-Type": "application/json" });
                   res.end(JSON.stringify({error: "id does not exists!", solution: "create it first using POST method"}));
+                  logger.error(`${req.method} request for ${req.url} failed with error: "id does not exists!"`);
                 } else {
                 try {
                   timeManager.setSelectedTime(body.id, body.time);
                   res.writeHead(200, { "Content-Type": "application/json" });
                   res.end(JSON.stringify("updated value"));
+                  logger.info(`${req.method} request for ${req.url} selection updated`);
                 } catch (e) {
                   res.writeHead(400, { "Content-Type": "application/json" });
                   console.log(e.message);
                   res.end(JSON.stringify({"error": "missing / wrong id or time"}));
+                  logger.error(`${req.method} request for ${req.url} failed with error: "missing / wrong id or time"`);
                 }
               }
                 break;
@@ -69,9 +74,11 @@ http
                     timeManager.removeSelectedTime(req.url.split("/")[2]);
                     res.writeHead(200, { "Content-Type": "application/json" });
                     res.end(JSON.stringify("deleted value"));
+                    logger.info(`${req.method} request for ${req.url} selection deleted`);
                 } else {
                     res.writeHead(400, { "Content-Type": "application/json" });
                     res.end(JSON.stringify({error: "id does not exists!", solution: "Check your id and try again, id should be in url"}));
+                    logger.error(`${req.method} request for ${req.url} failed with error: "id does not exists!"`);
                 }
             break;
 
@@ -79,12 +86,14 @@ http
             res.writeHead(404, { "Content-Type": "text/plain" });
             res.write("not here buddy");
             res.end();
+            logger.info(`${req.method} request for ${req.url} not found`);
             break;
         }
         } else {
             res.writeHead(404, { "Content-Type": "text/plain" });
             res.write("not here buddy");
             res.end();
+            logger.info(`${req.method} request for ${req.url} not found`);
         }
       });
   })
