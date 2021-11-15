@@ -15,17 +15,6 @@ if (!fs.existsSync(logDirName)){
     fs.mkdirSync(logDirName);
 }
 
-// setup pino logger
-// const logger = pino({
-//     level: 'info',
-//     prettyPrint: {},
-//     prettifier: (opts) => {
-//         return (inputData) => {
-//             const ts = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
-//             const line = `${ts} ${levelMapping[inputData.level]}: ${inputData.msg} ${EOL}`
-//             return line;
-//         }}
-// },pino.destination("logs/index.log"));
  
 const logger = pino({
     transport: {
