@@ -19,9 +19,9 @@ http
         console.log(`new ${req.method} request`);
         switch (req.method) {
           case "GET":
-            if (body && body.id) {
+              if (req.url.split("/")[1]) {
               res.writeHead(200, { "Content-Type": "application/json" });
-              res.end(JSON.stringify(timeManager.getSelectedTime(body.id)));
+              res.end(JSON.stringify(timeManager.getSelectedTime(req.url.split("/")[1])));
             } else {
               res.writeHead(200, { "Content-Type": "application/json" });
               res.end(JSON.stringify(timeManager.getSelectedTimes()));
@@ -30,7 +30,7 @@ http
           case "POST":
               if(timeManager.hasSelectedTime(body.id)) {
                 res.writeHead(400, { "Content-Type": "application/json" });
-                res.end(JSON.stringify({error: "id already exists"}));
+                res.end(JSON.stringify({error: "id already exists", solution: "delete the old one using DELETE method or update it using PUT method"}));
               } else {
               try {
                 timeManager.setSelectedTime(body.id, body.time);
@@ -39,13 +39,26 @@ http
               } catch (e) {
                 res.writeHead(400, { "Content-Type": "application/json" });
                 console.log(e.message);
-                res.end(JSON.stringify({"error": "missing / wrong id or time"}));
+                res.end(JSON.stringify({"error": "missing / wrong id or time", solution: 'check the id and time keys should be: id, time'}));
               }
             }
             break;
-          case "PUT":
-            // do something
-            break;
+            case "PUT":
+                if(!timeManager.hasSelectedTime(body.id)) {
+                  res.writeHead(400, { "Content-Type": "application/json" });
+                  res.end(JSON.stringify({error: "id does not exists!", solution: "create it first using POST method"}));
+                } else {
+                try {
+                  timeManager.setSelectedTime(body.id, body.time);
+                  res.writeHead(200, { "Content-Type": "application/json" });
+                  res.end(JSON.stringify("updated value"));
+                } catch (e) {
+                  res.writeHead(400, { "Content-Type": "application/json" });
+                  console.log(e.message);
+                  res.end(JSON.stringify({"error": "missing / wrong id or time"}));
+                }
+              }
+                break;
           case "DELETE":
             // do something
             break;
