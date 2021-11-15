@@ -3,6 +3,7 @@ const pino = require("pino");
 const pretty = require("pino-pretty");
 const timeManager = require("./timeManager");
 const http = require("http");
+const logger = pino(pino.destination("logs/index.log"));
 
 http
   .createServer((req, res) => {
@@ -12,16 +13,19 @@ http
         body.push(chunk);
       })
       .on("end", () => {
+          if(req.url.split('/')[1] === "selectDates"){
+          
         body = Buffer.concat(body).toString();
         if(body) {
             body = JSON.parse(body);
         }
         console.log(`new ${req.method} request`);
         switch (req.method) {
-          case "GET":
-              if (req.url.split("/")[1]) {
+            case "GET":
+                logger.info(`${req.method} request for ${req.url}`);
+                if (req.url.split("/")[2]) {
               res.writeHead(200, { "Content-Type": "application/json" });
-              res.end(JSON.stringify(timeManager.getSelectedTime(req.url.split("/")[1])));
+              res.end(JSON.stringify(timeManager.getSelectedTime(req.url.split("/")[2])));
             } else {
               res.writeHead(200, { "Content-Type": "application/json" });
               res.end(JSON.stringify(timeManager.getSelectedTimes()));
@@ -31,6 +35,7 @@ http
               if(timeManager.hasSelectedTime(body.id)) {
                 res.writeHead(400, { "Content-Type": "application/json" });
                 res.end(JSON.stringify({error: "id already exists", solution: "delete the old one using DELETE method or update it using PUT method"}));
+                logger.error(`${req.method} request for ${req.url} failed with error: "id already exists"`);
               } else {
               try {
                 timeManager.setSelectedTime(body.id, body.time);
@@ -60,7 +65,14 @@ http
               }
                 break;
           case "DELETE":
-            // do something
+                if(req.url.split("/")[2] && timeManager.hasSelectedTime(req.url.split("/")[2])) {
+                    timeManager.removeSelectedTime(req.url.split("/")[2]);
+                    res.writeHead(200, { "Content-Type": "application/json" });
+                    res.end(JSON.stringify("deleted value"));
+                } else {
+                    res.writeHead(400, { "Content-Type": "application/json" });
+                    res.end(JSON.stringify({error: "id does not exists!", solution: "Check your id and try again, id should be in url"}));
+                }
             break;
 
           default:
@@ -69,11 +81,15 @@ http
             res.end();
             break;
         }
+        } else {
+            res.writeHead(404, { "Content-Type": "text/plain" });
+            res.write("not here buddy");
+            res.end();
+        }
       });
   })
   .listen(3000);
 
-const logger = pino(pino.destination("logs/index.log"));
 
 // const logger = pino(pretty(), pino.destination('logs/index.log'));
 
@@ -98,6 +114,5 @@ console.log(timeManager.getSelectedTimes());
 timeManager.removeSelectedTime(279077447);
 timeManager.setSelectedTime(379593480, 2, logger);
 
-logger.info(`Setting time for to `);
 
 console.log(timeManager.getSelectedTimes());
