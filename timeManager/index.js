@@ -4,7 +4,7 @@ var data = {};
 
 function setSelectedTime(id, time) {
     if(members.some(member => member.id === id)) {
-        data[id] = {"date": dates[time]['date'], dateID: time};
+        data[id] = {"date": dates[time-1]['date'], dateID: time};
     } else {
         throw new Error(`Member with id ${id} does not exist`);
     }
