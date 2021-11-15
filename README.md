@@ -2,9 +2,12 @@
 # Time manager API
 This app is an api to hellp you orgenaize your long awaiter Trip!
 
-### USAGE
+### INSTALL
 ---
 run `npm install`
+### USAGE
+---
+run `node index.js`
 default port is `3000`
 
 ### Endpoints

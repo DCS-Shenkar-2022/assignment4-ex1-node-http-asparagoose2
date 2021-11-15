@@ -75,7 +75,7 @@ http
               try {
                 timeManager.setSelectedTime(body.id, body.time);
                 res.writeHead(200, { "Content-Type": "application/json" });
-                res.end(JSON.stringify("updated value"));
+                res.end(JSON.stringify({success: `${body.id} added with selection ${body.time}`}));
                 emmiter.emit('info',`${req.method} request for ${req.url} new selection created`)
               } catch (e) {
                 res.writeHead(400, { "Content-Type": "application/json" });
@@ -95,7 +95,7 @@ http
                 try {
                   timeManager.setSelectedTime(body.id, body.time);
                   res.writeHead(200, { "Content-Type": "application/json" });
-                  res.end(JSON.stringify("updated value"));
+                  res.end(JSON.stringify({success: `${body.id} updated with selection ${body.time}`}));
                   emmiter.emit('info',`${req.method} request for ${req.url} selection updated`);
                 } catch (e) {
                   res.writeHead(400, { "Content-Type": "application/json" });
@@ -110,7 +110,7 @@ http
                 if(req.url.split("/")[2] && timeManager.hasSelectedTime(req.url.split("/")[2])) {
                     timeManager.removeSelectedTime(req.url.split("/")[2]);
                     res.writeHead(200, { "Content-Type": "application/json" });
-                    res.end(JSON.stringify("deleted value"));
+                    res.end(JSON.stringify({success: `${body.id} deleted`}));
                     emmiter.emit('info',`${req.method} request for ${req.url} selection deleted`);
                 } else {
                     res.writeHead(400, { "Content-Type": "application/json" });
@@ -128,7 +128,7 @@ http
         }
         } else {
             res.writeHead(404, { "Content-Type": "text/plain" });
-            res.write("Page not found!");
+            res.write("Page not found!"); 
             res.end();
             emmiter.emit('info',`${req.method} request for ${req.url} not found`);
         }
@@ -140,6 +140,5 @@ http
 // init of the data
 timeManager.setSelectedTime(379593480, 3);
 timeManager.setSelectedTime(237453612, 1);
-timeManager.setSelectedTime(279077447, 5);
 
 console.log(timeManager.getSelectedTimes());
