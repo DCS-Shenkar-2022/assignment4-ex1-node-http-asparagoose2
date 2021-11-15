@@ -28,13 +28,15 @@ http
             }
             break;
           case "POST":
-            if(body && body.id && body.time) {
+              try {
+                timeManager.setSelectedTime(body.id, body.time);
                 res.writeHead(200, { "Content-Type": "application/json" });
                 res.end(JSON.stringify("updated value"));
-            } else {
+              } catch (e) {
                 res.writeHead(400, { "Content-Type": "application/json" });
-                res.end(JSON.stringify({"error": "missing id or time"}));
-            }
+                console.log(e.message);
+                res.end(JSON.stringify({"error": "missing / wrong id or time"}));
+              }
             break;
           case "PUT":
             // do something
